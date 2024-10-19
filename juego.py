@@ -10,6 +10,57 @@ def colocar_monedas(laberinto, recompensas):
     posiciones_monedas = random.sample(posiciones_disponibles, recompensas)
     return posiciones_monedas  # Retornar las posiciones de las monedas para dibujarlas después
 
+def mostrar_menu_ganador(pantalla, fuente, score, tiempo_transcurrido):
+    # Definir los colores
+    BLANCO = (255, 255, 255)
+    GRIS = (100, 100, 100)
+    AMARILLO = (255, 183, 3)
+    AZUL = (2, 48, 71)
+    SKYBLUE = (33, 158, 188)
+    NEGRO = (0, 0, 0)
+
+    pantalla.fill(NEGRO)
+
+   # Mostrar mensaje de victoria
+    texto_ganador = fuente.render("¡Has ganado!", True, AMARILLO)
+    pantalla.blit(texto_ganador, (300, 150)) 
+    texto_puntaje = fuente.render(f"Puntaje: {score}", True, BLANCO)
+    pantalla.blit(texto_puntaje, (300, 200))  
+
+    # Mostrar el tiempo transcurrido
+    minutos = int(tiempo_transcurrido // 60)
+    segundos = int(tiempo_transcurrido % 60)
+    texto_tiempo = fuente.render(f"Tiempo: {minutos:02}:{segundos:02}", True, BLANCO)
+    pantalla.blit(texto_tiempo, (350, 600))
+
+    # Definir los botones
+    opciones = ["Reiniciar", "Menú", "Salir"]
+    seleccion = 0  # Opción seleccionada
+
+    # Bucle para el menú
+    while True:
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if evento.type == pygame.KEYDOWN:
+                if evento.key == pygame.K_UP:
+                    seleccion = (seleccion - 1) % len(opciones)  # Navegar hacia arriba
+                if evento.key == pygame.K_DOWN:
+                    seleccion = (seleccion + 1) % len(opciones)  # Navegar hacia abajo
+                if evento.key == pygame.K_RETURN:  # Al presionar Enter
+                    return opciones[seleccion].lower().replace(" ", "_")  # Devuelve la opción seleccionada en minúsculas
+
+        # Dibujar los botones
+        for i, opcion in enumerate(opciones):
+            color = AZUL if i == seleccion else SKYBLUE
+            boton_rect = pygame.Rect(350, 300 + i * 100, 200, 50)
+            pygame.draw.rect(pantalla, color, boton_rect)
+            texto_opcion = fuente.render(opcion, True, BLANCO)
+            pantalla.blit(texto_opcion, (boton_rect.x + 50, boton_rect.y + 10))
+
+        pygame.display.flip()
+
 def ejecutar_laberinto(nivel, enemigos, recompensas, mejoras, pared):
     # Inicializar Pygame
     pygame.init()
@@ -22,11 +73,12 @@ def ejecutar_laberinto(nivel, enemigos, recompensas, mejoras, pared):
 
     # Fuente para el texto
     fuente = pygame.font.Font(None, 30)
+    fuenteGanador = pygame.font.Font(None, 45)
     # Tamaño de cada celda del laberinto
     TAMANO_CELDA = 22
 
     # Configuración de la ventana
-    ANCHO, ALTO = 920, 650
+    ANCHO, ALTO = 925, 650
     pantalla = pygame.display.set_mode((ANCHO, ALTO))
 
     pygame.display.set_caption("Juego del Laberinto")
@@ -45,6 +97,8 @@ def ejecutar_laberinto(nivel, enemigos, recompensas, mejoras, pared):
     img_recompensas = pygame.transform.scale(img_recompensas, (40, 40))
     img_moneda= pygame.image.load('./img/moneda.png')
     img_moneda = pygame.transform.scale(img_moneda, (20, 20))
+    img_meta= pygame.image.load('./img/meta_castillo.png')
+    img_meta = pygame.transform.scale(img_meta, (50, 60))
     
      # Colocar monedas en el laberinto (solo una vez)
     posiciones_monedas = colocar_monedas(laberinto, recompensas)
@@ -77,10 +131,12 @@ def ejecutar_laberinto(nivel, enemigos, recompensas, mejoras, pared):
                     if laberinto[jugador_y + 1][jugador_x] == 0:
                         jugador_y += 1
 
+        
         # Comprobar si el jugador ha alcanzado la meta
         if jugador_x == meta_x and jugador_y == meta_y:
-            print("¡Has ganado!")
-            ejecutando = False
+            tiempo_transcurrido = time.time() - tiempo_inicio  # Calcula el tiempo transcurrido
+            opcion = mostrar_menu_ganador(pantalla, fuenteGanador, score, tiempo_transcurrido)
+            return opcion
 
         # Detectar colisiones con las monedas
         monedas_restantes = []
@@ -109,7 +165,7 @@ def ejecutar_laberinto(nivel, enemigos, recompensas, mejoras, pared):
         pygame.draw.rect(pantalla, ROJO, (jugador_x * TAMANO_CELDA, jugador_y * TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA))
 
         # Dibujar la meta
-        pygame.draw.rect(pantalla, AZUL, (meta_x * TAMANO_CELDA, meta_y * TAMANO_CELDA, TAMANO_CELDA, TAMANO_CELDA))
+        pantalla.blit(img_meta, (meta_x * TAMANO_CELDA, meta_y * TAMANO_CELDA))
 
         # Actualizar el tiempo transcurrido
         tiempo_transcurrido = time.time() - tiempo_inicio
@@ -157,7 +213,7 @@ laberinto = [
     [1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
     [1, 0, 1, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 0, 1],
     [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
-    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0]
 
 ]
 

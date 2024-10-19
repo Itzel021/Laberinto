@@ -135,10 +135,20 @@ def main():
                     pantalla_juego = True  # Cambiar a la pantalla de juego
 
         if pantalla_juego:
-            mostrar_juego(dificultad_seleccionada, enemigos, recompensas, mejoras)  
+            # Llama a `mostrar_juego`, que luego llama a `iniciar_juego` en `juego.py`
+            resultado = mostrar_juego(dificultad_seleccionada, enemigos, recompensas, mejoras)
+            
+            # Gestionar el resultado del juego
+            if resultado == "menú":
+                pantalla_juego = False  # Regresar al menú
+            elif resultado == "reiniciar":
+                continue  # Reiniciar el juego sin salir al menú
+            elif resultado == "salir":
+                ejecutando = False  # Salir del juego
         else:
             dibujar_menu(seleccionado)
             dibujar_enemigos_recompensas()
+
 
         pygame.display.flip()
 

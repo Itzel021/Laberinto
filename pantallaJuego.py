@@ -25,14 +25,16 @@ def mostrar_juego(dificultad_seleccionada, enemigos, recompensas, mejoras):
 
     if dificultad_seleccionada == "Fácil":
         nivel = "Fácil"
-        ejecutar_laberinto(nivel, enemigos, recompensas, mejoras, imagen_pared1)
-        
+        resultado = ejecutar_laberinto(nivel, enemigos, recompensas, mejoras, imagen_pared1)
+
     elif dificultad_seleccionada == "Medio":
         nivel = "Medio"
-        ejecutar_laberinto(nivel, enemigos, recompensas, mejoras, imagen_pared2)
+        resultado = ejecutar_laberinto(nivel, enemigos, recompensas, mejoras, imagen_pared2)
 
     elif dificultad_seleccionada == "Difícil":
         nivel = "Difícil"
-        ejecutar_laberinto(nivel, enemigos, recompensas, mejoras, imagen_pared3)
+        resultado = ejecutar_laberinto(nivel, enemigos, recompensas, mejoras, imagen_pared3)
 
+    # Después de que el juego termina, se devuelve el resultado para saber qué hacer
+    return resultado
 
