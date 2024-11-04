@@ -4,11 +4,16 @@ from juego import ejecutar_laberinto
 
 # Inicializar pygame
 pygame.init()
+pygame.mixer.init()
 
 # Configuración de la ventana
 ANCHO, ALTO = 960, 650
 ventana = pygame.display.set_mode((ANCHO, ALTO))
 pygame.display.set_caption("Juego del laberinto")
+
+# Cargar música de fondo del menú
+pygame.mixer.music.load("./Sonidos/menu.mp3")
+pygame.mixer.music.play(-1)
 
 # Cargar imagen de fondo
 fondo = pygame.image.load("./img/fondoInicio.jpg")  # Reemplaza "fondoInicio.jpg" con la ruta de tu imagen
@@ -55,6 +60,7 @@ boton_rects = [
     pygame.Rect(50, 260, 160, 40),  # Botón "Medio"
     pygame.Rect(50, 320, 160, 40)    # Botón "Difícil"
 ]
+
 # Variables para el estado del juego
 pantalla_juego = False  # Indica si estamos en el menú o en el juego
 dificultad_seleccionada = "Fácil"  # Variable para la dificultad seleccionada
@@ -155,6 +161,7 @@ def main():
                     ajustar_dificultad(dificultad_seleccionada)
                 # Cambiar a la pantalla del juego al presionar Enter
                 elif evento.key == pygame.K_RETURN:
+                    pygame.mixer.music.stop()  # Detener la música del menú al iniciar el juego
                     pantalla_juego = True  # Cambiar a la pantalla de juego
 
         if pantalla_juego:
@@ -162,17 +169,13 @@ def main():
             resultado = mostrar_juego(dificultad_seleccionada, enemigos, recompensas, mejoras)
             # Gestionar el resultado del juego
             if resultado == "menú":
-                pantalla_juego = False  # Regresar al menú
-            elif resultado == "reiniciar":
-                continue  # Reiniciar el juego sin salir al menú
-            elif resultado == "salir":
-                ejecutando = False  # Salir del juego
+                pantalla_juego = False
+                pygame.mixer.music.play(-1)  # Reproducir música del menú nuevamente
         else:
             dibujar_menu(seleccionado)
             dibujar_enemigos_recompensas()
 
-
         pygame.display.flip()
 
-# Ejecutar el menú
-main()
+if __name__ == "__main__":
+    main()

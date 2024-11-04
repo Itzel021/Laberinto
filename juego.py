@@ -2,6 +2,7 @@ import pygame
 import sys
 import time
 import random
+pygame.mixer.init()
 
 RANGO_PERCEPCION = 30
 DURACION_MEJORA = 3  # Duración de la mejora en segundos
@@ -100,6 +101,18 @@ def mostrar_menu_ganador(pantalla, texto, fuente, score, tiempo_transcurrido):
 
 def ejecutar_laberinto(nivel, enemigos, recompensas, mejoras, pared):
     pygame.init()
+    pygame.mixer.init()
+
+    musica_niveles = {
+        "Fácil": './Sonidos/fon_facil.mp3',
+        "Medio": './Sonidos/fondo_medio.mp3',
+        "Difícil": './Sonidos/fondo_dificil.mp3'
+    }
+    
+    # Cargar y reproducir la música si no está sonando
+    if not pygame.mixer.music.get_busy():
+        pygame.mixer.music.load(musica_niveles[nivel])
+        pygame.mixer.music.play(-1)  # Reproduce en bucle
 
     NEGRO = (0, 0, 0)
     BLANCO = (255, 255, 255)
@@ -146,8 +159,7 @@ def ejecutar_laberinto(nivel, enemigos, recompensas, mejoras, pared):
     tiempo_mejora = 0
 
     # Cargar la música de derrota
-    pygame.mixer.music.load(SONIDO_DERROTA)
-    # Cargar la música de derrota
+    sonido_derrota = pygame.mixer.Sound(SONIDO_DERROTA)
     sonido_moneda = pygame.mixer.Sound(SONIDO_MONEDA)
 
     ejecutando = True
@@ -169,14 +181,13 @@ def ejecutar_laberinto(nivel, enemigos, recompensas, mejoras, pared):
                         jugador_y += 1
 
 
-        # Verificar si el jugador ha sido alcanzado por un enemigo
+    # Verificar si el jugador ha sido alcanzado por un enemigo
         for enemigo in posiciones_enemigos:
             if enemigo["pos_actual"] == (jugador_y, jugador_x):
-                # Reproducir el sonido de derrota
-                pygame.mixer.music.play()
-                # Esperar a que termine la música antes de mostrar el menú
-                while pygame.mixer.music.get_busy():
-                    pygame.time.delay(100)
+                # Reproducir sonido de derrota sin bloquear
+                sonido_derrota.play()
+                # Esperar unos milisegundos para que se reproduzca el sonido sin que el juego se trabe
+                pygame.time.delay(500)
                 tiempo_transcurrido = time.time() - tiempo_inicio
                 texto = "Perdiste. Fin del juego"
                 opcion = mostrar_menu_ganador(pantalla, texto, fuenteGanador, score, tiempo_transcurrido)
@@ -194,6 +205,7 @@ def ejecutar_laberinto(nivel, enemigos, recompensas, mejoras, pared):
         monedas_restantes = []
         for (moneda_x, moneda_y) in posiciones_monedas:
             if jugador_x == moneda_y and jugador_y == moneda_x:
+                pygame.mixer.Sound("./Sonidos/moneda.mp3")
                 score += 1
                 sonido_moneda.play()
             else:

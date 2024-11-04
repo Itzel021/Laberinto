@@ -1,5 +1,5 @@
 import pygame
-import time
+#import time
 
 # Inicializa Pygame y el mixer
 pygame.init()
